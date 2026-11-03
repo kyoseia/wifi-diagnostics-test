@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#091321">
+  <meta name="description" content="ESP32 Wi-Fi diagnostics dashboard showing current network metrics and their history.">
+  <title>Wi-Fi Diagnostics | ESP32 Monitor</title>
+  <link rel="preconnect" href="https://api.thingspeak.com">
+  <link rel="stylesheet" href="styles.css">
+  <script src="config.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Wi-Fi Diagnostics home">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M2.8 8.8a14 14 0 0 1 18.4 0M5.9 12a9.3 9.3 0 0 1 12.2 0m-9 3.2a4.7 4.7 0 0 1 5.8 0M12 19h.01"/></svg></span>
+        <span><strong>Wi-Fi Diagnostics</strong><small>ESP32 NETWORK MONITOR</small></span>
+      </a>
+      <div class="topbar-right">
+        <div class="connection-pill" id="connectionPill"><span class="status-dot"></span><span id="connectionText">NOT CONFIGURED</span></div>
+        <button class="icon-button" id="refreshButton" type="button" title="Refresh readings" aria-label="Refresh readings">↻</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="page-heading">
+        <div>
+          <p class="eyebrow">NETWORK STATUS</p>
+          <h1>Device overview</h1>
+          <p class="subheading">Current Wi-Fi diagnostics from your ESP32.</p>
+        </div>
+        <div class="last-update">
+          <span class="tiny-label">LATEST DATA RECEIVED</span>
+          <strong id="lastUpdated">Waiting for data</strong>
+          <span id="freshness" class="freshness">No readings received yet</span>
+        </div>
+      </section>
+
+      <!-- These four current values are intentionally the primary dashboard content. -->
+      <section class="metrics-grid" id="metricsGrid" aria-label="Current Wi-Fi diagnostic values">
+        <article class="metric-card" data-metric="0">
+          <div class="metric-top"><span class="metric-label" id="metricLabel0">Wi-Fi signal</span><span class="metric-symbol signal-symbol" aria-hidden="true">◔</span></div>
+          <div class="metric-reading"><strong id="metricValue0">—</strong><span id="metricUnit0">dBm</span></div>
+          <div class="metric-foot"><span class="metric-state" id="metricState0">Waiting for data</span><span class="metric-field" id="metricField0">FIELD 1</span></div>
+        </article>
+        <article class="metric-card" data-metric="1">
+          <div class="metric-top"><span class="metric-label" id="metricLabel1">Network latency</span><span class="metric-symbol latency-symbol" aria-hidden="true">◷</span></div>
+          <div class="metric-reading"><strong id="metricValue1">—</strong><span id="metricUnit1">ms</span></div>
+          <div class="metric-foot"><span class="metric-state" id="metricState1">Waiting for data</span><span class="metric-field" id="metricField1">FIELD 2</span></div>
+        </article>
+        <article class="metric-card" data-metric="2">
+          <div class="metric-top"><span class="metric-label" id="metricLabel2">Uptime</span><span class="metric-symbol uptime-symbol" aria-hidden="true">◴</span></div>
+          <div class="metric-reading"><strong id="metricValue2">—</strong><span id="metricUnit2">min</span></div>
+          <div class="metric-foot"><span class="metric-state" id="metricState2">Waiting for data</span><span class="metric-field" id="metricField2">FIELD 3</span></div>
+        </article>
+        <article class="metric-card" data-metric="3">
+          <div class="metric-top"><span class="metric-label" id="metricLabel3">Wi-Fi reconnects</span><span class="metric-symbol reconnect-symbol" aria-hidden="true">↻</span></div>
+          <div class="metric-reading"><strong id="metricValue3">—</strong><span id="metricUnit3">count</span></div>
+          <div class="metric-foot"><span class="metric-state" id="metricState3">Waiting for data</span><span class="metric-field" id="metricField3">FIELD 4</span></div>
+        </article>
+      </section>
+
+      <section class="history-section" aria-labelledby="historyTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">SECONDARY VIEW</p>
+            <h2 id="historyTitle">Metric history</h2>
+            <p class="section-description">Scroll down to inspect how each network measurement changes over time.</p>
+          </div>
+          <span class="history-count" id="historyCount">0 data points</span>
+        </div>
+        <div class="charts-grid">
+          <article class="chart-card">
+            <div class="chart-heading"><div><h3 id="chartTitle0">Wi-Fi signal</h3><span id="chartUnit0">RSSI · dBm</span></div><span class="chart-current" id="chartCurrent0">—</span></div>
+            <div class="chart-wrap"><canvas id="chart0" role="img" aria-label="Wi-Fi signal history"></canvas><div class="chart-empty" id="chartEmpty0">History will appear when data arrives.</div></div>
+            <div class="chart-axis"><span>OLDER</span><span>NEWER</span></div>
+          </article>
+          <article class="chart-card">
+            <div class="chart-heading"><div><h3 id="chartTitle1">Network latency</h3><span id="chartUnit1">Latency · ms</span></div><span class="chart-current" id="chartCurrent1">—</span></div>
+            <div class="chart-wrap"><canvas id="chart1" role="img" aria-label="Network latency history"></canvas><div class="chart-empty" id="chartEmpty1">History will appear when data arrives.</div></div>
+            <div class="chart-axis"><span>OLDER</span><span>NEWER</span></div>
+          </article>
+          <article class="chart-card">
+            <div class="chart-heading"><div><h3 id="chartTitle2">Uptime</h3><span id="chartUnit2">Uptime · min</span></div><span class="chart-current" id="chartCurrent2">—</span></div>
+            <div class="chart-wrap"><canvas id="chart2" role="img" aria-label="Device uptime history"></canvas><div class="chart-empty" id="chartEmpty2">History will appear when data arrives.</div></div>
+            <div class="chart-axis"><span>OLDER</span><span>NEWER</span></div>
+          </article>
+          <article class="chart-card">
+            <div class="chart-heading"><div><h3 id="chartTitle3">Wi-Fi reconnects</h3><span id="chartUnit3">Reconnects · count</span></div><span class="chart-current" id="chartCurrent3">—</span></div>
+            <div class="chart-wrap"><canvas id="chart3" role="img" aria-label="Wi-Fi reconnect history"></canvas><div class="chart-empty" id="chartEmpty3">History will appear when data arrives.</div></div>
+            <div class="chart-axis"><span>OLDER</span><span>NEWER</span></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="device-strip">
+        <div class="device-strip-heading"><span class="device-chip">ESP32</span><div><strong>Data connection</strong><span>Read-only connection to your ThingSpeak channel</span></div></div>
+        <div class="device-details">
+          <div><span>Channel ID</span><strong id="channelDisplay">Not set</strong></div>
+          <div><span>Refresh interval</span><strong id="refreshDisplay">15 seconds</strong></div>
+          <div><span>Latest entry</span><strong id="entryDisplay">—</strong></div>
+        </div>
+        <p class="device-message" id="deviceMessage">Add your ThingSpeak Channel ID in config.js to connect the dashboard.</p>
+      </section>
+
+      <section class="setup-notice" id="setupNotice">
+        <span class="notice-icon">i</span>
+        <div><strong>Dashboard setup required</strong><p>Set your ThingSpeak Channel ID and confirm that Fields 1–4 contain Wi-Fi diagnostic values. Keep the ThingSpeak Write API Key on the ESP32 only; never put it in this website.</p></div>
+      </section>
+    </main>
+
+    <footer><span>Wi-Fi Diagnostics · ESP32 Monitor</span><span>Static website · <a href="https://thingspeak.com" target="_blank" rel="noopener noreferrer">ThingSpeak data</a></span></footer>
+  </div>
+  <noscript><div class="noscript">JavaScript is required to retrieve and display ThingSpeak readings.</div></noscript>
+</body>
+</html>
