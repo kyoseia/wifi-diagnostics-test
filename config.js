@@ -12,7 +12,7 @@
  * who can open this public website. NEVER put the WRITE API KEY here.
  */
 window.WIFI_DIAGNOSTICS_CONFIG = {
-  CHANNEL_ID: "YOUR_CHANNEL_ID",
+  CHANNEL_ID: "3564253",
   READ_API_KEY: "",
   REFRESH_MS: 15000,
   RESULTS: 60,
